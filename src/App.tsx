@@ -1,28 +1,33 @@
-import { useEffect } from "react";
-import DrumPad from "./DrumPad";
-import sounds from "./Sounds";
+import DrumPad from "./Components/DrumPad";
+import sounds from "./Components/Sounds";
+import "./Styles/drums.css"
 
 function App() {
-  const play = (key: string) => {
-    if (sounds[key]) {
-      new Audio(sounds[key].sound)
-        .play()
-        .catch((err) => console.error("Audio failed to play:", err));
-    } else console.warn(`No sound mapped for ${key}`);
+
+  const playSound = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const key = e.key.toUpperCase();
+    const sound = sounds[key];
+    if (!sound) return;
+    (document.getElementById(key) as HTMLAudioElement)
+      .play()
+      .catch(console.error);
+
+    document.getElementById(`drum-${key}`)?.focus();
+    document.getElementById("display")!.innerText = sound.name;
   };
 
-  useEffect(() => {
-    document.addEventListener("keyup", (e) => play(e.key.toUpperCase()), true);
-  }, []);
-
   return (
-    <div id="drum-machine">
-      <div className="pad-bank">
-        {Object.keys(sounds).map((key, index) => (
-          <DrumPad padKey={key} key={index} play={play} />
-        ))}
+    <>
+      <h1>FCC Drum Machine</h1>
+      <div id="drum-machine" onKeyDown={playSound}>
+        <div className="pad-bank">
+          {Object.keys(sounds).map(key => (
+            <DrumPad drumKey={key} key={key} />
+          ))}
+        </div>
+        <div id={"display"} className={"display"}>{"Press a Pad"}</div>
       </div>
-    </div>
+    </>
   );
 }
 
